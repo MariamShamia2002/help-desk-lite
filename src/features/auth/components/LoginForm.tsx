@@ -5,7 +5,6 @@ import { Link } from 'react-router'
 import {
   getErrorMessage,
   getExtra,
-  getFieldErrors,
   getRetryAfterSeconds,
   hasCode,
   isRateLimited,
@@ -15,7 +14,7 @@ import { FormField } from '@/components/shared/FormField'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { getErrorId } from '@/lib/form'
+import { applyServerFieldErrors, getErrorId } from '@/lib/form'
 
 import { useCountdown } from '../hooks/useCountdown'
 import { useLogin } from '../hooks/useLogin'
@@ -43,9 +42,7 @@ export function LoginForm() {
   const onSubmit = (values: LoginFormValues) => {
     loginMutation.mutate(values, {
       onError: (err) => {
-        Object.entries(getFieldErrors(err)).forEach(([field, message]) => {
-          if (field === 'email' || field === 'password') setError(field, { message })
-        })
+        applyServerFieldErrors(err, setError, ['email', 'password'])
         if (isRateLimited(err)) lock.start(getRetryAfterSeconds(err) ?? DEFAULT_LOCK_SECONDS)
       },
     })
