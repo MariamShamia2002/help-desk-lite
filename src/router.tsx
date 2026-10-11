@@ -4,7 +4,10 @@ import GuestRoute from '@/components/shared/GuestRoute'
 import NotFoundPage from '@/components/shared/NotFoundPage'
 import ProtectedRoute from '@/components/shared/ProtectedRoute'
 import { HomeRedirect } from '@/features/auth/components/HomeRedirect'
+import ForgotPasswordPage from '@/features/auth/pages/ForgotPasswordPage'
 import LoginPage from '@/features/auth/pages/LoginPage'
+import ResetPasswordPage from '@/features/auth/pages/ResetPasswordPage'
+import SignupPage from '@/features/auth/pages/SignupPage'
 import QueuePage from '@/features/queue/pages/QueuePage'
 import TicketsPage from '@/features/tickets/pages/TicketsPage'
 import AppLayout from '@/layout/AppLayout'
@@ -12,8 +15,14 @@ import AppLayout from '@/layout/AppLayout'
 export const router = createBrowserRouter([
   {
     element: <GuestRoute />,
-    children: [{ path: '/login', element: <LoginPage /> }],
+    children: [
+      { path: '/login', element: <LoginPage /> },
+      { path: '/signup', element: <SignupPage /> },
+      { path: '/forgot-password', element: <ForgotPasswordPage /> },
+    ],
   },
+  // Not guest-only: the emailed link must work even if this browser is signed in.
+  { path: '/reset-password', element: <ResetPasswordPage /> },
   {
     element: <ProtectedRoute />,
     children: [

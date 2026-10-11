@@ -7,7 +7,7 @@ import type { AuthSession, Role } from './types'
 let accessToken: string | null = null
 let currentRole: Role | null = null
 
-export type SignOutReason = 'manual' | 'idle-expired' | 'revoked' | 'unauthenticated'
+export type SignOutReason = 'manual' | 'password-reset' | 'idle-expired' | 'revoked' | 'unauthenticated'
 
 export type SessionEvent =
   | { type: 'refreshed'; session: AuthSession }
