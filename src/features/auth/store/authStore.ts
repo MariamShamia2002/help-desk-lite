@@ -16,6 +16,8 @@ interface AuthState {
   initialize: () => Promise<void>
   completeSignIn: (session: AuthSession) => Promise<void>
   signOut: () => Promise<void>
+  /** The server already ended every session; just forget ours locally. */
+  endSessionAfterPasswordReset: () => void
   handleSessionEvent: (event: SessionEvent) => void
   dismissRoleChanged: () => void
 }
@@ -68,6 +70,11 @@ export const useAuthStore = create<AuthState>()((set, get) => {
         clearSession()
         emitSessionEvent({ type: 'signed-out', reason: 'manual' })
       }
+    },
+
+    endSessionAfterPasswordReset: () => {
+      clearSession()
+      emitSessionEvent({ type: 'signed-out', reason: 'password-reset' })
     },
 
     handleSessionEvent: (event) => {
