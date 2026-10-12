@@ -1,15 +1,22 @@
-import type { ApiError, ApiErrorCode } from './types'
+import type { ApiErrorBody, ApiErrorCode } from './types'
 
-export type { ApiError, ApiErrorBody, ApiErrorCode } from './types'
+export type { ApiErrorBody, ApiErrorCode } from './types'
+
+export class ApiError extends Error {
+  /** HTTP status, or 0 for network failures. */
+  readonly status: number
+  readonly error: ApiErrorBody
+
+  constructor(status: number, error: ApiErrorBody, options?: ErrorOptions) {
+    super(error.message, options)
+    this.name = 'ApiError'
+    this.status = status
+    this.error = error
+  }
+}
 
 export function isApiError(err: unknown): err is ApiError {
-  return (
-    typeof err === 'object' &&
-    err !== null &&
-    'status' in err &&
-    'error' in err &&
-    typeof (err as ApiError).error?.code === 'string'
-  )
+  return err instanceof ApiError
 }
 
 export function hasCode(err: unknown, code: ApiErrorCode): boolean {

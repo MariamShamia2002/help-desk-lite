@@ -1,5 +1,6 @@
+import { ApiError } from './errors'
 import { clearSession, emitSessionEvent, getAccessToken, getCurrentRole, setCurrentRole, setSession } from './session'
-import type { ApiError, ApiErrorBody, ApiErrorCode, ApiResponse, AuthSession, PaginatedResponse, Role } from './types'
+import type { ApiErrorBody, ApiErrorCode, ApiResponse, AuthSession, PaginatedResponse, Role } from './types'
 
 export const API_URL = import.meta.env.VITE_API_URL
 
@@ -36,8 +37,8 @@ async function execute(endpoint: string, options: ExecuteOptions, token: string 
       },
       body: body !== undefined ? JSON.stringify(body) : undefined,
     })
-  } catch {
-    throw networkError()
+  } catch (cause) {
+    throw networkError(cause)
   }
 
   const parsed: unknown = response.status === 204 ? null : await response.json().catch(() => null)
@@ -166,17 +167,18 @@ function errorCodeOf(value: unknown): ApiErrorCode | undefined {
 }
 
 function toApiError(response: Response, body: unknown): ApiError {
-  if (isErrorEnvelope(body)) return { status: response.status, error: body.error }
+  if (isErrorEnvelope(body)) return new ApiError(response.status, body.error)
 
   const code = statusToCode(response.status)
-  return { status: response.status, error: { code, message: response.statusText || code } }
+  return new ApiError(response.status, { code, message: response.statusText || code })
 }
 
-function networkError(): ApiError {
-  return {
-    status: 0,
-    error: { code: 'NETWORK_ERROR', message: "Can't reach the server. Check your connection and try again." },
-  }
+function networkError(cause: unknown): ApiError {
+  return new ApiError(
+    0,
+    { code: 'NETWORK_ERROR', message: "Can't reach the server. Check your connection and try again." },
+    { cause },
+  )
 }
 
 // Checks that an unknown value has the `{ error: { code, message } }` shape.

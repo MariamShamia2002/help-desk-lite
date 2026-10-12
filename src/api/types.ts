@@ -33,12 +33,6 @@ export interface ApiErrorBody {
   requestId?: string
 }
 
-export interface ApiError {
-  /** HTTP status, or 0 for network failures. */
-  status: number
-  error: ApiErrorBody
-}
-
 export interface ApiResponse<T> {
   data: T
 }
