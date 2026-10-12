@@ -83,18 +83,8 @@ async function request(endpoint: string, { skipAuth, ...options }: RequestOption
     try {
       await refreshSession()
     } catch (err) {
-      // Network / 5xx failures leave the refresh cookie intact, so keep the session for the next attempt.
-      const code = errorCodeOf(err)
-      if (code === 'SESSION_REVOKED' || code === 'UNAUTHENTICATED') {
-        clearSession()
-        emitSessionEvent({
-          type: 'signed-out',
-          reason: code === 'SESSION_REVOKED' ? 'idle-expired' : 'unauthenticated',
-        })
-      } else if (code === 'ACCOUNT_DEACTIVATED') {
-        clearSession()
-        emitSessionEvent({ type: 'deactivated' })
-      }
+      // Concurrent requests share one failed refresh; only the first still holding a session ends it.
+      if (getAccessToken() !== null) endSessionAfterFailedRefresh(err)
       throw err
     }
     ;({ response, body } = await execute(endpoint, options, getAccessToken()))
@@ -123,6 +113,18 @@ export async function apiClientPaginated<T>(endpoint: string, options?: RequestO
 }
 
 // Helpers
+
+// Network / 5xx failures leave the refresh cookie intact, so the session is kept for the next attempt.
+function endSessionAfterFailedRefresh(err: unknown): void {
+  const code = errorCodeOf(err)
+  if (code === 'SESSION_REVOKED' || code === 'UNAUTHENTICATED') {
+    clearSession()
+    emitSessionEvent({ type: 'signed-out', reason: code === 'SESSION_REVOKED' ? 'idle-expired' : 'unauthenticated' })
+  } else if (code === 'ACCOUNT_DEACTIVATED') {
+    clearSession()
+    emitSessionEvent({ type: 'deactivated' })
+  }
+}
 
 function handleAuthFailure({ error }: ApiError): void {
   switch (error.code) {
