@@ -3,10 +3,6 @@ import type { ApiError, ApiErrorBody, ApiErrorCode, ApiResponse, AuthSession, Pa
 
 export const API_URL = import.meta.env.VITE_API_URL;
 
-if (!API_URL) {
-	throw new Error("VITE_API_URL is not defined");
-}
-
 const ROLES: readonly Role[] = ["customer", "agent", "admin"];
 
 export interface RequestOptions extends Omit<RequestInit, "body"> {

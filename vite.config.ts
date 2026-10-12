@@ -7,6 +7,10 @@ import { defineConfig, loadEnv } from 'vite'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
+  if (!env.VITE_API_URL) {
+    throw new Error('VITE_API_URL is not set. Copy .env.example to .env, or set it in the build environment.')
+  }
+
   return {
     plugins: [react(), tailwindcss()],
     resolve: {
