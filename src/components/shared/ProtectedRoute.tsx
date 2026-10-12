@@ -37,7 +37,9 @@ export default function ProtectedRoute({ capability }: ProtectedRouteProps) {
 
   if (status === 'unauthenticated') {
     // After a deliberate sign-out the next person shouldn't land on the previous user's page.
-    if (signOutReason === 'manual') return <Navigate to="/login" replace />
+    if (signOutReason === 'manual' || signOutReason === 'signed-out-everywhere') {
+      return <Navigate to="/login" replace />
+    }
     const returnTo = encodeURIComponent(location.pathname + location.search)
     return <Navigate to={`/login?returnTo=${returnTo}`} replace />
   }
@@ -48,7 +50,11 @@ export default function ProtectedRoute({ capability }: ProtectedRouteProps) {
         icon={<ShieldX className="size-8 text-muted-foreground" aria-hidden="true" />}
         title="You don't have access to this page"
         description="Your account doesn't have permission to view it."
-        action={<Button nativeButton={false} render={<Link to="/" />}>Go to my home page</Button>}
+        action={
+          <Button nativeButton={false} render={<Link to="/" />}>
+            Go to my home page
+          </Button>
+        }
       />
     )
   }

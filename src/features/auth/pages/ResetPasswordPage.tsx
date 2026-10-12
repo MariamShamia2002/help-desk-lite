@@ -60,7 +60,12 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <AuthLayout title="Choose a new password" description="This signs you out on every device." footer={backToSignIn} wide>
+    <AuthLayout
+      title="Choose a new password"
+      description="This signs you out on every device."
+      footer={backToSignIn}
+      wide
+    >
       <ResetPasswordForm
         token={token ?? ''}
         onSuccess={() => navigate('/login', { replace: true })}

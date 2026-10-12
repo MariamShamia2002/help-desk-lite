@@ -3,9 +3,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 
 import { getErrorMessage, isApiError, isValidationError } from '@/api/errors'
 import { FormField } from '@/components/shared/FormField'
+import { PasswordInput } from '@/components/shared/PasswordInput'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { applyServerFieldErrors, getErrorId } from '@/lib/form'
 
 import { useResetPassword } from '../hooks/usePasswordReset'
@@ -68,9 +68,8 @@ export function ResetPasswordForm({ token, onSuccess, onTokenError }: ResetPassw
       />
 
       <FormField id="confirmPassword" label="Confirm new password" error={errors.confirmPassword?.message}>
-        <Input
+        <PasswordInput
           id="confirmPassword"
-          type="password"
           autoComplete="new-password"
           aria-invalid={errors.confirmPassword ? true : undefined}
           aria-describedby={errors.confirmPassword ? getErrorId('confirmPassword') : undefined}

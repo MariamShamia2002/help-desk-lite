@@ -1,13 +1,13 @@
 import type { AuthSession, Role } from './types'
 
-
 //   The access token lives in memory only (never localStorage).
 //   The refresh token is an httpOnly cookie the browser manages for us.
 
 let accessToken: string | null = null
 let currentRole: Role | null = null
 
-export type SignOutReason = 'manual' | 'password-reset' | 'idle-expired' | 'revoked' | 'unauthenticated'
+export type SignOutReason =
+  'manual' | 'signed-out-everywhere' | 'password-reset' | 'idle-expired' | 'revoked' | 'unauthenticated'
 
 export type SessionEvent =
   | { type: 'refreshed'; session: AuthSession }

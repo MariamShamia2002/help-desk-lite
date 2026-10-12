@@ -25,7 +25,7 @@ export function getErrorMessage(err: unknown, fallback = 'Something went wrong. 
   return isApiError(err) ? err.error.message : fallback
 }
 
-// Shown on the 500 page as the reference ID. 
+// Shown on the 500 page as the reference ID.
 export function getRequestId(err: unknown): string | undefined {
   return isApiError(err) ? err.error.requestId : undefined
 }
@@ -34,7 +34,7 @@ export function getExtra<T = unknown>(err: unknown, key: string): T | undefined 
   return isApiError(err) ? (err.error.extra?.[key] as T | undefined) : undefined
 }
 
-// Seconds until a RATE_LIMITED lock ends. 
+// Seconds until a RATE_LIMITED lock ends.
 export function getRetryAfterSeconds(err: unknown): number | undefined {
   const value = getExtra<unknown>(err, 'retryAfterSeconds')
   return typeof value === 'number' ? value : undefined

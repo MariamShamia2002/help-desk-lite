@@ -18,6 +18,9 @@ interface AuthState {
   signOut: () => Promise<void>
   /** The server already ended every session; just forget ours locally. */
   endSessionAfterPasswordReset: () => void
+  /** For flows where the server already ended this session (e.g. sign out everywhere). */
+  endLocalSession: (reason: SignOutReason) => void
+  updateUser: (patch: Partial<Pick<AuthUser, 'name'>>) => void
   handleSessionEvent: (event: SessionEvent) => void
   dismissRoleChanged: () => void
 }
@@ -75,6 +78,16 @@ export const useAuthStore = create<AuthState>()((set, get) => {
     endSessionAfterPasswordReset: () => {
       clearSession()
       emitSessionEvent({ type: 'signed-out', reason: 'password-reset' })
+    },
+
+    endLocalSession: (reason) => {
+      clearSession()
+      emitSessionEvent({ type: 'signed-out', reason })
+    },
+
+    updateUser: (patch) => {
+      const { user } = get()
+      if (user) set({ user: { ...user, ...patch } })
     },
 
     handleSessionEvent: (event) => {
