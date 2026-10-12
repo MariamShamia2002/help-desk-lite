@@ -9,10 +9,11 @@ export function hasCapability(
   return needed.every((capability) => capabilities.includes(capability))
 }
 
-export function getHomePath(capabilities: readonly Capability[]): string {
+/** `null` when no page fits these capabilities; never `/`, which would redirect back here. */
+export function getHomePath(capabilities: readonly Capability[]): string | null {
   if (capabilities.includes('queue:view')) return '/queue'
   if (capabilities.includes('tickets:view-own')) return '/tickets'
-  return '/'
+  return null
 }
 
 /** Only allow same-app paths, so `?returnTo=` can't redirect off-site. */

@@ -14,7 +14,8 @@ export default function GuestRoute() {
   if (status === 'idle' || status === 'loading') return <FullPageLoader />
 
   if (status === 'authenticated') {
-    const destination = getSafeReturnTo(searchParams.get('returnTo')) ?? getHomePath(capabilities)
+    // `/` shows the "no access yet" screen when there's no home page.
+    const destination = getSafeReturnTo(searchParams.get('returnTo')) ?? getHomePath(capabilities) ?? '/'
     return <Navigate to={destination} replace />
   }
 
