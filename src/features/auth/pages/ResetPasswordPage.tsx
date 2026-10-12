@@ -48,7 +48,7 @@ export default function ResetPasswordPage() {
     return (
       <AuthLayout title="Reset your password" footer={backToSignIn}>
         <div className="flex flex-col gap-4">
-          <Alert variant="destructive" role="alert">
+          <Alert variant="destructive">
             <AlertDescription>{getErrorMessage(tokenQuery.error)}</AlertDescription>
           </Alert>
           <Button variant="outline" size="lg" onClick={() => void tokenQuery.refetch()}>

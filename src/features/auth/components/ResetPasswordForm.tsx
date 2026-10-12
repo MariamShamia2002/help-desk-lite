@@ -54,7 +54,7 @@ export function ResetPasswordForm({ token, onSuccess, onTokenError }: ResetPassw
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
       {formError && (
-        <Alert variant="destructive" role="alert">
+        <Alert variant="destructive">
           <AlertDescription>{formError}</AlertDescription>
         </Alert>
       )}

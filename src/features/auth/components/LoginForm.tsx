@@ -11,6 +11,7 @@ import {
   isValidationError,
 } from '@/api/errors'
 import { FormField } from '@/components/shared/FormField'
+import { PasswordInput } from '@/components/shared/PasswordInput'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -20,6 +21,7 @@ import { useCountdown } from '../hooks/useCountdown'
 import { useLogin } from '../hooks/useLogin'
 import { loginSchema, type LoginFormValues } from '../schemas/loginSchema'
 
+// The server only reports the real duration (`retryAfterSeconds`) once the lock is active.
 const DEFAULT_LOCK_SECONDS = 30
 
 /** On success the auth store flips to authenticated and `GuestRoute` redirects. */
@@ -51,7 +53,7 @@ export function LoginForm() {
   return (
     <form noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
       {formError && (
-        <Alert variant="destructive" role="alert">
+        <Alert variant="destructive">
           <AlertDescription>{formError}</AlertDescription>
         </Alert>
       )}
@@ -78,9 +80,8 @@ export function LoginForm() {
           </Link>
         }
       >
-        <Input
+        <PasswordInput
           id="password"
-          type="password"
           autoComplete="current-password"
           aria-invalid={errors.password ? true : undefined}
           aria-describedby={errors.password ? getErrorId('password') : undefined}
@@ -108,7 +109,7 @@ function getFormError(error: unknown, lockSeconds: number): string | null {
     const attemptsLeft = getExtra<number>(error, 'attemptsLeft')
     const suffix =
       typeof attemptsLeft === 'number'
-        ? ` ${attemptsLeft} attempt${attemptsLeft === 1 ? '' : 's'} left before sign-in is locked for 30 seconds.`
+        ? ` ${attemptsLeft} attempt${attemptsLeft === 1 ? '' : 's'} left before sign-in is locked for ${DEFAULT_LOCK_SECONDS} seconds.`
         : ''
     return `Email or password is incorrect.${suffix}`
   }
