@@ -1,15 +1,46 @@
 import { createBrowserRouter } from 'react-router'
 
+import GuestRoute from '@/components/shared/GuestRoute'
 import NotFoundPage from '@/components/shared/NotFoundPage'
-import HomePage from '@/features/home/pages/HomePage'
+import ProtectedRoute from '@/components/shared/ProtectedRoute'
+import { HomeRedirect } from '@/features/auth/components/HomeRedirect'
+import ForgotPasswordPage from '@/features/auth/pages/ForgotPasswordPage'
+import LoginPage from '@/features/auth/pages/LoginPage'
+import ResetPasswordPage from '@/features/auth/pages/ResetPasswordPage'
+import SignupPage from '@/features/auth/pages/SignupPage'
+import QueuePage from '@/features/queue/pages/QueuePage'
+import TicketsPage from '@/features/tickets/pages/TicketsPage'
 import AppLayout from '@/layout/AppLayout'
 
 export const router = createBrowserRouter([
   {
-    element: <AppLayout />,
+    element: <GuestRoute />,
     children: [
-      { index: true, element: <HomePage /> },
-      { path: '*', element: <NotFoundPage /> },
+      { path: '/login', element: <LoginPage /> },
+      { path: '/signup', element: <SignupPage /> },
+      { path: '/forgot-password', element: <ForgotPasswordPage /> },
+    ],
+  },
+  // Not guest-only: the emailed link must work even if this browser is signed in.
+  { path: '/reset-password', element: <ResetPasswordPage /> },
+  {
+    element: <ProtectedRoute />,
+    children: [
+      {
+        element: <AppLayout />,
+        children: [
+          { index: true, element: <HomeRedirect /> },
+          {
+            element: <ProtectedRoute capability="tickets:view-own" />,
+            children: [{ path: '/tickets', element: <TicketsPage /> }],
+          },
+          {
+            element: <ProtectedRoute capability="queue:view" />,
+            children: [{ path: '/queue', element: <QueuePage /> }],
+          },
+          { path: '*', element: <NotFoundPage /> },
+        ],
+      },
     ],
   },
 ])
