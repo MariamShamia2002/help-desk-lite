@@ -7,7 +7,13 @@ let accessToken: string | null = null
 let currentRole: Role | null = null
 
 export type SignOutReason =
-  'manual' | 'signed-out-everywhere' | 'password-reset' | 'idle-expired' | 'revoked' | 'unauthenticated'
+  | 'manual'
+  | 'signed-out-everywhere'
+  | 'password-reset'
+  | 'account-created'
+  | 'idle-expired'
+  | 'revoked'
+  | 'unauthenticated'
 
 export type SessionEvent =
   | { type: 'refreshed'; session: AuthSession }
