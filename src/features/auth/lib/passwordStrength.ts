@@ -9,11 +9,15 @@ export interface PasswordRule {
   test: (password: string) => boolean
 }
 
+// Must match the API exactly. The contract (API frontend handover, "Forms > Password rules") only says
+// "length ≥ 8, upper- and lowercase, a digit, a symbol" and doesn't define the character classes.
+// These were inferred from the API's fields.password responses: case and number are ASCII-only, and a symbol
+// is anything else, including spaces, é, Arabic letters and emoji. Update them if the backend documents a regex.
 export const PASSWORD_RULES: readonly PasswordRule[] = [
   { id: 'length', label: 'At least 8 characters', test: (p) => p.length >= MIN_PASSWORD_LENGTH },
   { id: 'case', label: 'Upper- and lowercase letters', test: (p) => /[a-z]/.test(p) && /[A-Z]/.test(p) },
-  { id: 'number', label: 'A number', test: (p) => /\d/.test(p) },
-  { id: 'symbol', label: 'A symbol, like ! or #', test: (p) => /[^A-Za-z0-9\s]/.test(p) },
+  { id: 'number', label: 'A number', test: (p) => /[0-9]/.test(p) },
+  { id: 'symbol', label: 'A symbol, like ! or #', test: (p) => /[^A-Za-z0-9]/.test(p) },
 ]
 
 export type PasswordStrengthLevel = 'too-weak' | 'very-weak' | 'fair' | 'good' | 'very-strong'

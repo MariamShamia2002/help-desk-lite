@@ -7,7 +7,8 @@ import { defineConfig, loadEnv } from 'vite'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
-  if (!env.VITE_API_URL) {
+  // Vitest runs in 'test' mode and never calls the API, so it shouldn't need a .env.
+  if (mode !== 'test' && !env.VITE_API_URL) {
     throw new Error('VITE_API_URL is not set. Copy .env.example to .env, or set it in the build environment.')
   }
 
