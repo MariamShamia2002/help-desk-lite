@@ -57,8 +57,12 @@ export function refreshSession(): Promise<AuthSession> {
     .then(({ response, body }) => {
       if (!response.ok) throw toApiError(response, body)
       const session = (body as ApiResponse<AuthSession>).data
+      // setSession overwrites the role silently, so read it first. Notify after it, so listeners
+      // that refetch (loadMe) already send the new token.
+      const previousRole = getCurrentRole()
       setSession(session)
       emitSessionEvent({ type: 'refreshed', session })
+      notifyRole(session.user.role, previousRole)
       return session
     })
     .finally(() => {
@@ -152,8 +156,7 @@ function trackRole(response: Response): void {
   if (isRole(role)) notifyRole(role)
 }
 
-function notifyRole(role: Role): void {
-  const known = getCurrentRole()
+function notifyRole(role: Role, known: Role | null = getCurrentRole()): void {
   if (known === null || known === role) return
   setCurrentRole(role)
   emitSessionEvent({ type: 'role-changed', role })
