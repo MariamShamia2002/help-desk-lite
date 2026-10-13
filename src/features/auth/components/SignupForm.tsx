@@ -3,7 +3,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 
 import { getErrorMessage, hasCode, isRateLimited, isValidationError } from '@/api/errors'
 import { FormField } from '@/components/shared/FormField'
-import { PasswordInput } from '@/components/shared/PasswordInput'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,6 +11,7 @@ import { applyServerFieldErrors, getErrorId } from '@/lib/form'
 import { useRateLimitLock } from '../hooks/useRateLimitLock'
 import { useSignup } from '../hooks/useSignup'
 import { signupSchema, type SignupFormValues } from '../schemas/passwordSchemas'
+import { ConfirmPasswordField } from './ConfirmPasswordField'
 import { NewPasswordField } from './NewPasswordField'
 
 /** On success the user is signed in and `GuestRoute` redirects. */
@@ -82,15 +82,12 @@ export function SignupForm() {
         registration={register('password')}
       />
 
-      <FormField id="confirmPassword" label="Confirm password" error={errors.confirmPassword?.message}>
-        <PasswordInput
-          id="confirmPassword"
-          autoComplete="new-password"
-          aria-invalid={errors.confirmPassword ? true : undefined}
-          aria-describedby={errors.confirmPassword ? getErrorId('confirmPassword') : undefined}
-          {...register('confirmPassword')}
-        />
-      </FormField>
+      <ConfirmPasswordField
+        id="confirmPassword"
+        label="Confirm password"
+        error={errors.confirmPassword?.message}
+        registration={register('confirmPassword')}
+      />
 
       <Button type="submit" size="lg" disabled={signupMutation.isPending || lock.isLocked}>
         {signupMutation.isPending ? 'Creating account…' : 'Create account'}

@@ -1,26 +1,19 @@
 import { useState } from 'react'
-import { ArrowLeft } from 'lucide-react'
 import { Link } from 'react-router'
 
 import { Button } from '@/components/ui/button'
 
 import AuthLayout from '../components/AuthLayout'
+import { BackToSignInLink } from '../components/BackToSignInLink'
 import { ForgotPasswordForm } from '../components/ForgotPasswordForm'
 import type { ForgotPasswordResponse } from '../types/auth.types'
-
-const backToSignIn = (
-  <Link to="/login" className="inline-flex items-center gap-1 font-medium text-primary hover:underline">
-    <ArrowLeft className="size-3.5" aria-hidden="true" />
-    Back to sign in
-  </Link>
-)
 
 export default function ForgotPasswordPage() {
   const [sent, setSent] = useState<ForgotPasswordResponse | null>(null)
 
   if (sent) {
     return (
-      <AuthLayout title="Check your email" description={sent.message} footer={backToSignIn}>
+      <AuthLayout title="Check your email" description={sent.message} footer={<BackToSignInLink />}>
         <div className="flex flex-col gap-4">
           {import.meta.env.DEV && sent.devResetLink && <DevResetLink link={sent.devResetLink} />}
           <Button variant="outline" size="lg" onClick={() => setSent(null)}>
@@ -35,7 +28,7 @@ export default function ForgotPasswordPage() {
     <AuthLayout
       title="Reset your password"
       description="Enter your account email and we'll send a reset link."
-      footer={backToSignIn}
+      footer={<BackToSignInLink />}
     >
       <ForgotPasswordForm onSent={setSent} />
     </AuthLayout>
