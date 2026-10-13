@@ -69,7 +69,9 @@ export const useAuthStore = create<AuthState>()((set, get) => {
     signOut: async () => {
       try {
         await logout()
-      } finally {
+      }catch {
+        // Server logout failed, but we still sign out locally.
+      }finally {
         clearSession()
         emitSessionEvent({ type: 'signed-out', reason: 'manual' })
       }
