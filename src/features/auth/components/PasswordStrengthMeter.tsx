@@ -5,8 +5,6 @@ import { cn } from '@/lib/utils'
 import { getPasswordStrength, PASSWORD_RULES, STRENGTH_LABELS } from '../lib/passwordStrength'
 
 const BAR_COUNT = 4
-/** From "Good" up, the password is accepted and the meter turns green. */
-const STRONG_SCORE = 3
 
 interface PasswordStrengthMeterProps {
   id: string
@@ -16,8 +14,7 @@ interface PasswordStrengthMeterProps {
 }
 
 export function PasswordStrengthMeter({ id, password, layout = 'grid' }: PasswordStrengthMeterProps) {
-  const { passed, score, level } = getPasswordStrength(password)
-  const isStrong = score >= STRONG_SCORE
+  const { passed, score, level, isAcceptable } = getPasswordStrength(password)
 
   return (
     <div id={id} className="flex flex-col gap-2">
@@ -27,7 +24,7 @@ export function PasswordStrengthMeter({ id, password, layout = 'grid' }: Passwor
             key={index}
             className={cn(
               'h-1 flex-1 rounded-full bg-border transition-colors',
-              index < score && (isStrong ? 'bg-success' : 'bg-destructive'),
+              index < score && (isAcceptable ? 'bg-success' : 'bg-destructive'),
             )}
           />
         ))}
@@ -55,10 +52,15 @@ export function PasswordStrengthMeter({ id, password, layout = 'grid' }: Passwor
       </ul>
 
       {password && (
-        <p aria-live="polite" className={cn('text-sm font-medium', isStrong ? 'text-success' : 'text-destructive')}>
+        <p className={cn('text-sm font-medium', isAcceptable ? 'text-success' : 'text-destructive')}>
           Strength: {STRENGTH_LABELS[level]}
         </p>
       )}
+
+      {/* Always rendered: a live region only announces changes if it already exists in the DOM. */}
+      <p aria-live="polite" className="sr-only">
+        {isAcceptable ? 'Password is strong enough.' : ''}
+      </p>
     </div>
   )
 }

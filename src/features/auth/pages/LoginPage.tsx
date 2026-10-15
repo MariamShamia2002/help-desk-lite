@@ -9,7 +9,9 @@ import type { SignOutReason } from '../types/auth.types'
 
 const SIGN_OUT_MESSAGES: Record<SignOutReason, string | null> = {
   manual: null,
+  'signed-out-everywhere': 'You were signed out on every device.',
   'password-reset': 'Your password was updated. Sign in with your new password.',
+  'account-created': 'Your account was created. Please sign in.',
   'idle-expired': 'Your session expired while you were away. Sign in again to continue.',
   revoked: 'You were signed out from another device or by an administrator.',
   unauthenticated: 'Please sign in to continue.',

@@ -2,14 +2,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link } from 'react-router'
 
-import {
-  getErrorMessage,
-  getExtra,
-  getRetryAfterSeconds,
-  hasCode,
-  isRateLimited,
-  isValidationError,
-} from '@/api/errors'
+import { getErrorMessage, getExtra, hasCode, isRateLimited, isValidationError } from '@/api/errors'
 import { FormField } from '@/components/shared/FormField'
 import { PasswordInput } from '@/components/shared/PasswordInput'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -17,12 +10,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { applyServerFieldErrors, getErrorId } from '@/lib/form'
 
-import { useCountdown } from '../hooks/useCountdown'
 import { useLogin } from '../hooks/useLogin'
+import { DEFAULT_LOCK_SECONDS, useRateLimitLock } from '../hooks/useRateLimitLock'
 import { loginSchema, type LoginFormValues } from '../schemas/loginSchema'
-
-// The server only reports the real duration (`retryAfterSeconds`) once the lock is active.
-const DEFAULT_LOCK_SECONDS = 30
 
 /** On success the auth store flips to authenticated and `GuestRoute` redirects. */
 export function LoginForm() {
@@ -36,16 +26,15 @@ export function LoginForm() {
     defaultValues: { email: '', password: '' },
   })
   const loginMutation = useLogin()
-  const lock = useCountdown()
+  const lock = useRateLimitLock()
 
-  const isLocked = lock.remaining > 0
-  const formError = getFormError(loginMutation.error, lock.remaining)
+  const formError = getFormError(loginMutation.error, lock.message)
 
   const onSubmit = (values: LoginFormValues) => {
     loginMutation.mutate(values, {
       onError: (err) => {
         applyServerFieldErrors(err, setError, ['email', 'password'])
-        if (isRateLimited(err)) lock.start(getRetryAfterSeconds(err) ?? DEFAULT_LOCK_SECONDS)
+        lock.handleError(err)
       },
     })
   }
@@ -89,21 +78,16 @@ export function LoginForm() {
         />
       </FormField>
 
-      <Button type="submit" size="lg" disabled={loginMutation.isPending || isLocked}>
+      <Button type="submit" size="lg" disabled={loginMutation.isPending || lock.isLocked}>
         {loginMutation.isPending ? 'Signing in…' : 'Sign in'}
       </Button>
     </form>
   )
 }
 
-function getFormError(error: unknown, lockSeconds: number): string | null {
+function getFormError(error: unknown, lockMessage: string | null): string | null {
   if (!error || isValidationError(error)) return null
-
-  if (isRateLimited(error)) {
-    return lockSeconds > 0
-      ? `Too many attempts. Try again in ${lockSeconds} second${lockSeconds === 1 ? '' : 's'}.`
-      : null
-  }
+  if (isRateLimited(error)) return lockMessage
 
   if (hasCode(error, 'INVALID_CREDENTIALS')) {
     const attemptsLeft = getExtra<number>(error, 'attemptsLeft')

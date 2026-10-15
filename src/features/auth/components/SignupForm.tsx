@@ -1,20 +1,18 @@
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
-import { getErrorMessage, getRetryAfterSeconds, hasCode, isRateLimited, isValidationError } from '@/api/errors'
+import { getErrorMessage, hasCode, isRateLimited, isValidationError } from '@/api/errors'
 import { FormField } from '@/components/shared/FormField'
-import { PasswordInput } from '@/components/shared/PasswordInput'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { applyServerFieldErrors, getErrorId } from '@/lib/form'
 
-import { useCountdown } from '../hooks/useCountdown'
+import { useRateLimitLock } from '../hooks/useRateLimitLock'
 import { useSignup } from '../hooks/useSignup'
 import { signupSchema, type SignupFormValues } from '../schemas/passwordSchemas'
+import { ConfirmPasswordField } from './ConfirmPasswordField'
 import { NewPasswordField } from './NewPasswordField'
-
-const DEFAULT_LOCK_SECONDS = 30
 
 /** On success the user is signed in and `GuestRoute` redirects. */
 export function SignupForm() {
@@ -30,10 +28,9 @@ export function SignupForm() {
   })
   const password = useWatch({ control, name: 'password' })
   const signupMutation = useSignup()
-  const lock = useCountdown()
+  const lock = useRateLimitLock()
 
-  const isLocked = lock.remaining > 0
-  const formError = getFormError(signupMutation.error, lock.remaining)
+  const formError = getFormError(signupMutation.error, lock.message)
 
   const onSubmit = ({ name, email, password: newPassword }: SignupFormValues) => {
     signupMutation.mutate(
@@ -41,7 +38,7 @@ export function SignupForm() {
       {
         onError: (err) => {
           applyServerFieldErrors(err, setError, ['name', 'email', 'password'])
-          if (isRateLimited(err)) lock.start(getRetryAfterSeconds(err) ?? DEFAULT_LOCK_SECONDS)
+          lock.handleError(err)
         },
       },
     )
@@ -85,30 +82,23 @@ export function SignupForm() {
         registration={register('password')}
       />
 
-      <FormField id="confirmPassword" label="Confirm password" error={errors.confirmPassword?.message}>
-        <PasswordInput
-          id="confirmPassword"
-          autoComplete="new-password"
-          aria-invalid={errors.confirmPassword ? true : undefined}
-          aria-describedby={errors.confirmPassword ? getErrorId('confirmPassword') : undefined}
-          {...register('confirmPassword')}
-        />
-      </FormField>
+      <ConfirmPasswordField
+        id="confirmPassword"
+        label="Confirm password"
+        error={errors.confirmPassword?.message}
+        registration={register('confirmPassword')}
+      />
 
-      <Button type="submit" size="lg" disabled={signupMutation.isPending || isLocked}>
+      <Button type="submit" size="lg" disabled={signupMutation.isPending || lock.isLocked}>
         {signupMutation.isPending ? 'Creating account…' : 'Create account'}
       </Button>
     </form>
   )
 }
 
-function getFormError(error: unknown, lockSeconds: number): string | null {
+function getFormError(error: unknown, lockMessage: string | null): string | null {
   // EMAIL_TAKEN and validation errors are shown on the fields themselves.
   if (!error || isValidationError(error) || hasCode(error, 'EMAIL_TAKEN')) return null
-  if (isRateLimited(error)) {
-    return lockSeconds > 0
-      ? `Too many attempts. Try again in ${lockSeconds} second${lockSeconds === 1 ? '' : 's'}.`
-      : null
-  }
+  if (isRateLimited(error)) return lockMessage
   return getErrorMessage(error)
 }

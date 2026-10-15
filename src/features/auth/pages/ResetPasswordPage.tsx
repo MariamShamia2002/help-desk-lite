@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowLeft, LoaderCircle } from 'lucide-react'
+import { LoaderCircle } from 'lucide-react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 
 import { getErrorMessage, isApiError } from '@/api/errors'
@@ -7,17 +7,11 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 
 import AuthLayout from '../components/AuthLayout'
+import { BackToSignInLink } from '../components/BackToSignInLink'
 import { ResetPasswordForm } from '../components/ResetPasswordForm'
 import { useResetToken } from '../hooks/usePasswordReset'
 import { isResetTokenErrorCode, RESET_TOKEN_MESSAGES } from '../lib/resetToken'
 import type { ResetTokenErrorCode } from '../types/auth.types'
-
-const backToSignIn = (
-  <Link to="/login" className="inline-flex items-center gap-1 font-medium text-primary hover:underline">
-    <ArrowLeft className="size-3.5" aria-hidden="true" />
-    Back to sign in
-  </Link>
-)
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate()
@@ -35,7 +29,7 @@ export default function ResetPasswordPage() {
 
   if (tokenQuery.isPending) {
     return (
-      <AuthLayout title="Reset your password" footer={backToSignIn}>
+      <AuthLayout title="Reset your password" footer={<BackToSignInLink />}>
         <div role="status" className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground">
           <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
           Checking your reset link…
@@ -46,7 +40,7 @@ export default function ResetPasswordPage() {
 
   if (tokenQuery.isError) {
     return (
-      <AuthLayout title="Reset your password" footer={backToSignIn}>
+      <AuthLayout title="Reset your password" footer={<BackToSignInLink />}>
         <div className="flex flex-col gap-4">
           <Alert variant="destructive">
             <AlertDescription>{getErrorMessage(tokenQuery.error)}</AlertDescription>
@@ -63,7 +57,7 @@ export default function ResetPasswordPage() {
     <AuthLayout
       title="Choose a new password"
       description="This signs you out on every device."
-      footer={backToSignIn}
+      footer={<BackToSignInLink />}
       wide
     >
       <ResetPasswordForm
@@ -83,7 +77,7 @@ function ResetTokenProblem({ code }: ResetTokenProblemProps) {
   const { title, description } = RESET_TOKEN_MESSAGES[code]
 
   return (
-    <AuthLayout title={title} description={description} footer={backToSignIn}>
+    <AuthLayout title={title} description={description} footer={<BackToSignInLink />}>
       <Button nativeButton={false} size="lg" className="w-full" render={<Link to="/forgot-password" />}>
         Request a new link
       </Button>
