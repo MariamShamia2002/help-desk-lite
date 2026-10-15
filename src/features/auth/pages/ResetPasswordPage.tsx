@@ -7,7 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 
 import AuthLayout from '../components/AuthLayout'
-import { BackLink } from '../components/BackLink'
+import { BackLink } from '../components/BackToSignInLink'
 import { ResetPasswordForm } from '../components/ResetPasswordForm'
 import { useResetToken } from '../hooks/usePasswordReset'
 import { isResetTokenErrorCode, RESET_TOKEN_MESSAGES } from '../lib/resetToken'
