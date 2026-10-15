@@ -4,7 +4,7 @@ import { Link } from 'react-router'
 import { Button } from '@/components/ui/button'
 
 import AuthLayout from '../components/AuthLayout'
-import { BackToSignInLink } from '../components/BackToSignInLink'
+import { BackLink } from '../components/BackLink'
 import { ForgotPasswordForm } from '../components/ForgotPasswordForm'
 import type { ForgotPasswordResponse } from '../types/auth.types'
 
@@ -13,7 +13,7 @@ export default function ForgotPasswordPage() {
 
   if (sent) {
     return (
-      <AuthLayout title="Check your email" description={sent.message} footer={<BackToSignInLink />}>
+      <AuthLayout title="Check your email" description={sent.message} footer={<BackLink />}>
         <div className="flex flex-col gap-4">
           {import.meta.env.DEV && sent.devResetLink && <DevResetLink link={sent.devResetLink} />}
           <Button variant="outline" size="lg" onClick={() => setSent(null)}>
@@ -28,7 +28,7 @@ export default function ForgotPasswordPage() {
     <AuthLayout
       title="Reset your password"
       description="Enter your account email and we'll send a reset link."
-      footer={<BackToSignInLink />}
+      footer={<BackLink />}
     >
       <ForgotPasswordForm onSent={setSent} />
     </AuthLayout>

@@ -1,7 +1,7 @@
 import type { UseFormRegisterReturn } from 'react-hook-form'
 
 import { FormField } from '@/components/shared/FormField'
-import { Input } from '@/components/ui/input'
+import { PasswordInput } from '@/components/shared/PasswordInput'
 import { getErrorId } from '@/lib/form'
 
 import { PasswordStrengthMeter } from './PasswordStrengthMeter'
@@ -21,9 +21,8 @@ export function NewPasswordField({ id, label, password, error, registration }: N
 
   return (
     <FormField id={id} label={label} error={error}>
-      <Input
+      <PasswordInput
         id={id}
-        type="password"
         autoComplete="new-password"
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
