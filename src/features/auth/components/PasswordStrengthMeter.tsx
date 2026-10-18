@@ -57,7 +57,7 @@ export function PasswordStrengthMeter({ id, password, layout = 'grid' }: Passwor
         </p>
       )}
 
-      {/* Always rendered: a live region only announces changes if it already exists in the DOM. */}
+      {/* {Always rendered} */}
       <p aria-live="polite" className="sr-only">
         {isAcceptable ? 'Password is strong enough.' : ''}
       </p>

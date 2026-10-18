@@ -39,7 +39,7 @@ function SessionsContent({ query }: SessionsContentProps) {
 
   if (query.isError) {
     return (
-      <Alert variant="destructive" role="alert">
+      <Alert variant="destructive">
         <AlertDescription className="flex flex-wrap items-center justify-between gap-3">
           Couldn't load your sessions. {getErrorMessage(query.error)}
           <Button variant="outline" size="sm" onClick={() => void query.refetch()}>

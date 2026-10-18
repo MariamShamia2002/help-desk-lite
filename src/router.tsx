@@ -3,6 +3,7 @@ import { createBrowserRouter } from 'react-router'
 import GuestRoute from '@/components/shared/GuestRoute'
 import NotFoundPage from '@/components/shared/NotFoundPage'
 import ProtectedRoute from '@/components/shared/ProtectedRoute'
+import AccountSecurityPage from '@/features/account/pages/AccountSecurityPage'
 import { HomeRedirect } from '@/features/auth/components/HomeRedirect'
 import ForgotPasswordPage from '@/features/auth/pages/ForgotPasswordPage'
 import LoginPage from '@/features/auth/pages/LoginPage'
@@ -30,6 +31,7 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           { index: true, element: <HomeRedirect /> },
+          { path: '/account', element: <AccountSecurityPage /> },
           {
             element: <ProtectedRoute capability="tickets:view-own" />,
             children: [{ path: '/tickets', element: <TicketsPage /> }],
