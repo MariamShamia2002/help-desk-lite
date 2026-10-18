@@ -10,6 +10,7 @@ import LoginPage from '@/features/auth/pages/LoginPage'
 import ResetPasswordPage from '@/features/auth/pages/ResetPasswordPage'
 import SignupPage from '@/features/auth/pages/SignupPage'
 import QueuePage from '@/features/queue/pages/QueuePage'
+import CreateTicketPage from '@/features/tickets/pages/CreateTicketPage'
 import TicketsPage from '@/features/tickets/pages/TicketsPage'
 import AppLayout from '@/layout/AppLayout'
 
@@ -35,6 +36,10 @@ export const router = createBrowserRouter([
           {
             element: <ProtectedRoute capability="tickets:view-own" />,
             children: [{ path: '/tickets', element: <TicketsPage /> }],
+          },
+          {
+            element: <ProtectedRoute capability="tickets:create" />,
+            children: [{ path: '/tickets/new', element: <CreateTicketPage /> }],
           },
           {
             element: <ProtectedRoute capability="queue:view" />,
