@@ -1,12 +1,7 @@
 import { apiClient, apiClientPaginated } from '@/api/client'
 import type { PaginatedResponse } from '@/api/types'
 
-import type {
-  CreateTicketPayload,
-  CreateTicketResponse,
-  TicketListItem,
-  TicketsQueryParams,
-} from '../types/ticket.types'
+import type { CreateTicketPayload, Ticket, TicketListItem, TicketsQueryParams } from '../types/ticket.types'
 
 export async function fetchTickets(params: TicketsQueryParams): Promise<PaginatedResponse<TicketListItem>> {
   const searchParams = new URLSearchParams()
@@ -24,7 +19,7 @@ export async function fetchTickets(params: TicketsQueryParams): Promise<Paginate
     searchParams.set('limit', params.limit.toString())
   }
   if (params.search) {
-    searchParams.set('search', params.search)
+    searchParams.set('q', params.search)
   }
 
   const query = searchParams.toString()
@@ -33,9 +28,15 @@ export async function fetchTickets(params: TicketsQueryParams): Promise<Paginate
   return apiClientPaginated<TicketListItem>(endpoint)
 }
 
-export async function createTicket(payload: CreateTicketPayload): Promise<CreateTicketResponse> {
-  return apiClient<CreateTicketResponse>('/tickets', {
+export async function createTicket(payload: CreateTicketPayload): Promise<Ticket> {
+  const body: CreateTicketPayload = {
+    title: payload.title.trim(),
+    description: payload.description.trim(),
+    ...(payload.category ? { category: payload.category } : {}),
+  }
+
+  return apiClient<Ticket>('/tickets', {
     method: 'POST',
-    body: payload,
+    body,
   })
 }

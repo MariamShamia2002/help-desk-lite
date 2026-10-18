@@ -10,13 +10,13 @@ export const TICKET_STATUSES = [
 ] as const
 
 export const TICKET_CATEGORIES = [
-  { label: 'Bug', value: 'bug' },
-  { label: 'Billing', value: 'billing' },
-  { label: 'Account', value: 'account' },
-  { label: 'Integrations', value: 'integrations' },
-  { label: 'Performance', value: 'performance' },
-  { label: 'Feature request', value: 'feature_request' },
-  { label: 'Other', value: 'other' },
+  { label: 'Bug', value: 'Bug' },
+  { label: 'Billing', value: 'Billing' },
+  { label: 'Account', value: 'Account' },
+  { label: 'Integrations', value: 'Integrations' },
+  { label: 'Performance', value: 'Performance' },
+  { label: 'Feature request', value: 'Feature request' },
+  { label: 'Other', value: 'Other' },
 ] as const
 
 export const SORT_OPTIONS = [
