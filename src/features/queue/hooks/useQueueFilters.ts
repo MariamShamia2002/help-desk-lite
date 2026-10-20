@@ -55,6 +55,15 @@ export function useQueueFilters(lockedAssignee?: 'me') {
     setPage(1)
   }
 
+  const clearFilters = () => {
+    setStatus('all')
+    setPriority('all')
+    setAssignee('all')
+    setSearch('')
+    setDebouncedSearch('')
+    setPage(1)
+  }
+
   return {
     status,
     priority,
@@ -71,5 +80,6 @@ export function useQueueFilters(lockedAssignee?: 'me') {
     selectPriority,
     selectAssignee,
     selectSort,
+    clearFilters,
   }
 }

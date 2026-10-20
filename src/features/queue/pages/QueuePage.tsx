@@ -61,8 +61,15 @@ export default function QueuePage({ lockedAssignee }: QueuePageProps) {
       )}
 
       {!isLoading && data && data.data.length === 0 && (
-        <div className="rounded-lg border bg-card p-8 text-center text-muted-foreground">
-          {hasFilters ? 'No tickets match these filters.' : 'No tickets in the queue.'}
+        <div className="rounded-lg border bg-card p-8 text-center">
+          <p className="text-muted-foreground">
+            {hasFilters ? 'No tickets match these filters.' : 'No tickets in the queue.'}
+          </p>
+          {hasFilters && (
+            <Button variant="outline" className="mt-4 hover:bg-accent" onClick={filters.clearFilters}>
+              Clear filters
+            </Button>
+          )}
         </div>
       )}
 
