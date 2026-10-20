@@ -1,5 +1,6 @@
 import { apiClient, apiClientPaginated } from '@/api/client'
 import type { PaginatedResponse } from '@/api/types'
+import type { Ticket, TicketPriority, TicketStatus } from '@/features/tickets/types/ticket.types'
 
 import type { QueueItem, QueueQueryParams, StaffAgent } from '../types/queue.types'
 
@@ -36,4 +37,18 @@ export async function fetchQueue(params: QueueQueryParams): Promise<PaginatedRes
 
 export function fetchStaffAgents(): Promise<StaffAgent[]> {
   return apiClient<StaffAgent[]>('/staff/agents')
+}
+
+export async function updateTicketStatus(ticketId: number, status: TicketStatus): Promise<Ticket> {
+  return apiClient<Ticket>(`/tickets/${ticketId}/status`, {
+    method: 'PATCH',
+    body: { status },
+  })
+}
+
+export async function updateTicketPriority(ticketId: number, priority: TicketPriority): Promise<Ticket> {
+  return apiClient<Ticket>(`/tickets/${ticketId}/priority`, {
+    method: 'PATCH',
+    body: { priority },
+  })
 }
