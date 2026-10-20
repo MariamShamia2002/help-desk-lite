@@ -1,20 +1,20 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
-import { getErrorMessage } from '@/api/errors'
+import { getErrorMessage, getExtra, isConflict } from '@/api/errors'
 import type { PaginatedResponse } from '@/api/types'
-import type { TicketPriority } from '@/features/tickets/types/ticket.types'
+import type { QueueItem } from '@/features/queue/types/queue.types'
 
-import { updateTicketPriority } from '../api/queueApi'
-import type { QueueItem } from '../types/queue.types'
+import { updateTicketStatus } from '../api/ticketsApi'
+import type { TicketStatus } from '../types/ticket.types'
 
-export function useUpdateTicketPriority() {
+export function useUpdateTicketStatus() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ ticketId, priority }: { ticketId: number; priority: TicketPriority }) =>
-      updateTicketPriority(ticketId, priority),
-    onMutate: async ({ ticketId, priority }) => {
+    mutationFn: ({ ticketId, status }: { ticketId: number; status: TicketStatus }) =>
+      updateTicketStatus(ticketId, status),
+    onMutate: async ({ ticketId, status }) => {
       await queryClient.cancelQueries({ queryKey: ['queue'] })
 
       const previousData = queryClient.getQueriesData<PaginatedResponse<QueueItem>>({ queryKey: ['queue'] })
@@ -24,7 +24,7 @@ export function useUpdateTicketPriority() {
         return {
           ...old,
           data: old.data.map((ticket) =>
-            ticket.id === ticketId ? { ...ticket, priority, updatedAt: new Date().toISOString() } : ticket,
+            ticket.id === ticketId ? { ...ticket, status, updatedAt: new Date().toISOString() } : ticket,
           ),
         }
       })
@@ -37,7 +37,20 @@ export function useUpdateTicketPriority() {
           queryClient.setQueryData(queryKey, data)
         })
       }
-      toast.error(getErrorMessage(error, 'Failed to update priority. Please try again.'))
+
+      // Handle version conflict
+      if (isConflict(error)) {
+        const currentVersion = getExtra<number>(error, 'currentVersion')
+        if (currentVersion !== undefined) {
+          toast.error('Someone else just updated this ticket. The page will refresh with the latest version.')
+        } else {
+          toast.error('This ticket was just modified by someone else. Please try again.')
+        }
+        // Refetch to get the latest data
+        queryClient.invalidateQueries({ queryKey: ['queue'] })
+      } else {
+        toast.error(getErrorMessage(error, 'Failed to update status. Please try again.'))
+      }
     },
     onSuccess: (updatedTicket) => {
       queryClient.setQueriesData<PaginatedResponse<QueueItem>>({ queryKey: ['queue'] }, (old) => {
@@ -48,7 +61,7 @@ export function useUpdateTicketPriority() {
             ticket.id === updatedTicket.id
               ? {
                   ...ticket,
-                  priority: updatedTicket.priority,
+                  status: updatedTicket.status,
                   updatedAt: updatedTicket.updatedAt,
                   lastActivityAt: updatedTicket.lastActivityAt ?? updatedTicket.updatedAt,
                 }

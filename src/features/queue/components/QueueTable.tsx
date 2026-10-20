@@ -1,7 +1,9 @@
 import { UserAvatar } from '@/components/shared/UserAvatar'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { useAuthStore } from '@/features/auth/store/authStore'
 import {
   getPriorityColor,
   getPriorityLabel,
@@ -11,8 +13,9 @@ import {
 } from '@/features/tickets/lib/ticketHelpers'
 import type { TicketPriority, TicketStatus } from '@/features/tickets/types/ticket.types'
 
-import { useUpdateTicketPriority } from '../hooks/useUpdateTicketPriority'
-import { useUpdateTicketStatus } from '../hooks/useUpdateTicketStatus'
+import { useUpdateTicketPriority } from '@/features/tickets/hooks/useUpdateTicketPriority'
+import { useUpdateTicketStatus } from '@/features/tickets/hooks/useUpdateTicketStatus'
+import { useUpdateTicketAssignee } from '@/features/tickets/hooks/useUpdateTicketAssignee'
 import { formatWaiting } from '../lib/formatWaiting'
 import type { QueueItem } from '../types/queue.types'
 import { TicketRowActions } from './TicketRowActions'
@@ -31,6 +34,8 @@ interface QueueTableProps {
 export function QueueTable({ tickets }: QueueTableProps) {
   const updateStatus = useUpdateTicketStatus()
   const updatePriority = useUpdateTicketPriority()
+  const updateAssignee = useUpdateTicketAssignee()
+  const currentUser = useAuthStore((state) => state.user)
 
   return (
     <div className="overflow-hidden rounded-lg border bg-card">
@@ -114,7 +119,22 @@ export function QueueTable({ tickets }: QueueTableProps) {
                     <span>{ticket.assignee.name}</span>
                   </span>
                 ) : (
-                  <span className="text-muted-foreground">Unassigned</span>
+                  <>
+                  <span className="text-muted-foreground">Unassigned </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      if (currentUser?.id) {
+                        updateAssignee.mutate({ ticketId: ticket.id, assigneeId: currentUser.id })
+                      }
+                    }}
+                    disabled={updateAssignee.isPending || !currentUser?.id}
+                    className="h-7 text-xs font-medium text-primary hover:bg-primary/10"
+                  >
+                    Take
+                  </Button>
+                  </>
                 )}
               </TableCell>
               <TableCell className="text-sm text-muted-foreground tabular-nums">
