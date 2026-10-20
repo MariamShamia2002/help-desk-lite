@@ -15,6 +15,7 @@ import { useUpdateTicketPriority } from '../hooks/useUpdateTicketPriority'
 import { useUpdateTicketStatus } from '../hooks/useUpdateTicketStatus'
 import { formatWaiting } from '../lib/formatWaiting'
 import type { QueueItem } from '../types/queue.types'
+import { TicketRowActions } from './TicketRowActions'
 
 const PRIORITY_OPTIONS: { label: string; value: TicketPriority }[] = [
   { label: 'Low', value: 'low' },
@@ -43,6 +44,9 @@ export function QueueTable({ tickets }: QueueTableProps) {
             <TableHead className="w-48">Assignee</TableHead>
             <TableHead className="w-28">Waiting</TableHead>
             <TableHead className="w-40">Updated</TableHead>
+            <TableHead className="w-16">
+              <span className="sr-only">Actions</span>
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -125,6 +129,9 @@ export function QueueTable({ tickets }: QueueTableProps) {
                     minute: '2-digit',
                   })}
                 </time>
+              </TableCell>
+              <TableCell>
+                <TicketRowActions ticketId={ticket.id} />
               </TableCell>
             </TableRow>
           ))}
