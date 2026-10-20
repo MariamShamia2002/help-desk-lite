@@ -1,10 +1,10 @@
 import { Search } from 'lucide-react'
 
 import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { TICKET_STATUSES } from '@/features/tickets/lib/ticketHelpers'
 import type { TicketPriority, TicketStatus } from '@/features/tickets/types/ticket.types'
 
+import { FilterSelect } from './FilterSelect'
 import type { QueueAssignee, StaffAgent } from '../types/queue.types'
 
 const PRIORITY_FILTERS: { label: string; value: TicketPriority | 'all' }[] = [
@@ -65,6 +65,7 @@ export function QueueToolbar({
         value={status}
         onChange={(value) => onStatusChange(value as TicketStatus | 'all')}
         options={TICKET_STATUSES.map((option) => ({ label: option.label, value: option.value }))}
+        prefix="Status"
       />
 
       <FilterSelect
@@ -72,6 +73,7 @@ export function QueueToolbar({
         value={priority}
         onChange={(value) => onPriorityChange(value as TicketPriority | 'all')}
         options={PRIORITY_FILTERS}
+        prefix="Priority"
       />
 
       {showAssigneeFilter && (
@@ -80,38 +82,9 @@ export function QueueToolbar({
           value={assignee}
           onChange={onAssigneeChange}
           options={[...ASSIGNEE_PRESETS, ...agents.map((agent) => ({ label: agent.name, value: agent.id }))]}
+          prefix="Assignee"
         />
       )}
     </div>
-  )
-}
-
-interface FilterSelectProps {
-  label: string
-  value: string
-  options: { label: string; value: string }[]
-  onChange: (value: string) => void
-}
-
-function FilterSelect({ label, value, options, onChange }: FilterSelectProps) {
-  return (
-    <Select
-      items={options}
-      value={value}
-      onValueChange={(next) => {
-        if (typeof next === 'string') onChange(next)
-      }}
-    >
-      <SelectTrigger aria-label={label} className="min-w-36">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        {options.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
-            {option.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
   )
 }
