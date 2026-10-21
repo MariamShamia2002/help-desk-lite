@@ -80,9 +80,8 @@ export function useUpdateTicketAssignee() {
         } else {
           toast.error('Someone else just changed the assignee. Please try again.')
         }
-        // Refetch to get the latest data
+        // Refetch every queue query, including the sidebar count queries.
         queryClient.invalidateQueries({ queryKey: ['queue'] })
-        queryClient.invalidateQueries({ queryKey: ['queue-count'] })
       } else {
         toast.error(getErrorMessage(error, 'Failed to assign ticket. Please try again.'))
       }
@@ -105,8 +104,12 @@ export function useUpdateTicketAssignee() {
         }
       })
 
-      // Invalidate queue counts to update sidebar badges
-      queryClient.invalidateQueries({ queryKey: ['queue-count'] })
+      // Sidebar "My assigned" count is this queue query, not a separate key.
+      if (currentUser) {
+        queryClient.invalidateQueries({
+          queryKey: ['queue', { page: 1, limit: 1, assignee: currentUser.id }],
+        })
+      }
 
       // Show success message only if assigning to current user
       if (currentUser && assigneeId === currentUser.id) {

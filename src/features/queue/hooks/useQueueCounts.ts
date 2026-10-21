@@ -11,7 +11,7 @@ export function useQueueCounts() {
   const { data: queueData } = useQueue({ page: 1, limit: 1 }, { enabled: canViewQueue })
 
   const { data: myAssignedData } = useQueue(
-    { page: 1, limit: 1, assignee: user?.id ? String(user.id) : undefined },
+    { page: 1, limit: 1, assignee: user?.id },
     { enabled: canViewQueue && !!user?.id },
   )
 
