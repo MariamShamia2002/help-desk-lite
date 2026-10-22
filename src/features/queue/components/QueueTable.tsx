@@ -1,37 +1,34 @@
+import { useNavigate } from 'react-router'
+
 import { UserAvatar } from '@/components/shared/UserAvatar'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { useAuthStore } from '@/features/auth/store/authStore'
+import { useUpdateTicketAssignee } from '@/features/tickets/hooks/useUpdateTicketAssignee'
+import { useUpdateTicketPriority } from '@/features/tickets/hooks/useUpdateTicketPriority'
+import { useUpdateTicketStatus } from '@/features/tickets/hooks/useUpdateTicketStatus'
 import {
-  getPriorityColor,
   getPriorityLabel,
-  getStatusColor,
+  getPrioritySelectClass,
   getStatusLabel,
+  getStatusSelectClass,
+  TICKET_PRIORITIES,
   TICKET_STATUSES,
 } from '@/features/tickets/lib/ticketHelpers'
 import type { TicketPriority, TicketStatus } from '@/features/tickets/types/ticket.types'
+import { cn } from '@/lib/utils'
 
-import { useUpdateTicketPriority } from '@/features/tickets/hooks/useUpdateTicketPriority'
-import { useUpdateTicketStatus } from '@/features/tickets/hooks/useUpdateTicketStatus'
-import { useUpdateTicketAssignee } from '@/features/tickets/hooks/useUpdateTicketAssignee'
 import { formatWaiting } from '../lib/formatWaiting'
 import type { QueueItem } from '../types/queue.types'
 import { TicketRowActions } from './TicketRowActions'
-
-const PRIORITY_OPTIONS: { label: string; value: TicketPriority }[] = [
-  { label: 'Low', value: 'low' },
-  { label: 'Normal', value: 'normal' },
-  { label: 'High', value: 'high' },
-  { label: 'Urgent', value: 'urgent' },
-]
 
 interface QueueTableProps {
   tickets: QueueItem[]
 }
 
 export function QueueTable({ tickets }: QueueTableProps) {
+  const navigate = useNavigate()
   const updateStatus = useUpdateTicketStatus()
   const updatePriority = useUpdateTicketPriority()
   const updateAssignee = useUpdateTicketAssignee()
@@ -56,13 +53,13 @@ export function QueueTable({ tickets }: QueueTableProps) {
         </TableHeader>
         <TableBody>
           {tickets.map((ticket) => (
-            <TableRow key={ticket.id}>
+            <TableRow key={ticket.id} className="cursor-pointer" onClick={() => navigate(`/tickets/${ticket.id}`)}>
               <TableCell className="font-mono text-xs text-muted-foreground">#{ticket.id}</TableCell>
               <TableCell>
                 <div className="font-medium">{ticket.title}</div>
                 <div className="text-sm text-muted-foreground">{ticket.requester.name}</div>
               </TableCell>
-              <TableCell>
+              <TableCell onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
                 <Select
                   value={ticket.status}
                   onValueChange={(value) => {
@@ -73,10 +70,13 @@ export function QueueTable({ tickets }: QueueTableProps) {
                   disabled={updateStatus.isPending}
                 >
                   <SelectTrigger
-                    className="h-auto w-auto border-0 bg-transparent p-0 shadow-none hover:bg-muted focus:ring-0"
+                    className={cn(
+                      'h-8 w-auto min-w-28 justify-between px-2.5 font-medium',
+                      getStatusSelectClass(ticket.status),
+                    )}
                     aria-label={`Change status for ticket ${ticket.id}`}
                   >
-                    <Badge variant={getStatusColor(ticket.status)}>{getStatusLabel(ticket.status)}</Badge>
+                    <SelectValue>{getStatusLabel(ticket.status)}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {TICKET_STATUSES.filter((s) => s.value !== 'all').map((option) => (
@@ -87,7 +87,7 @@ export function QueueTable({ tickets }: QueueTableProps) {
                   </SelectContent>
                 </Select>
               </TableCell>
-              <TableCell>
+              <TableCell onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
                 <Select
                   value={ticket.priority}
                   onValueChange={(value) => {
@@ -98,13 +98,16 @@ export function QueueTable({ tickets }: QueueTableProps) {
                   disabled={updatePriority.isPending}
                 >
                   <SelectTrigger
-                    className="h-auto w-auto border-0 bg-transparent p-0 shadow-none hover:bg-muted focus:ring-0"
+                    className={cn(
+                      'h-8 w-auto min-w-24 justify-between px-2.5 font-medium',
+                      getPrioritySelectClass(ticket.priority),
+                    )}
                     aria-label={`Change priority for ticket ${ticket.id}`}
                   >
-                    <span className={getPriorityColor(ticket.priority)}>{getPriorityLabel(ticket.priority)}</span>
+                    <SelectValue>{getPriorityLabel(ticket.priority)}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {PRIORITY_OPTIONS.map((option) => (
+                    {TICKET_PRIORITIES.filter((option) => option.value !== 'all').map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
@@ -112,7 +115,7 @@ export function QueueTable({ tickets }: QueueTableProps) {
                   </SelectContent>
                 </Select>
               </TableCell>
-              <TableCell>
+              <TableCell onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
                 {ticket.assignee ? (
                   <span className="flex items-center gap-2">
                     <UserAvatar name={ticket.assignee.name} className="size-6 text-[10px]" />
@@ -120,20 +123,20 @@ export function QueueTable({ tickets }: QueueTableProps) {
                   </span>
                 ) : (
                   <>
-                  <span className="text-muted-foreground">Unassigned </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      if (currentUser?.id) {
-                        updateAssignee.mutate({ ticketId: ticket.id, assigneeId: currentUser.id })
-                      }
-                    }}
-                    disabled={updateAssignee.isPending || !currentUser?.id}
-                    className="h-7 text-xs font-medium text-primary hover:bg-primary/10"
-                  >
-                    Take
-                  </Button>
+                    <span className="text-muted-foreground">Unassigned </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        if (currentUser?.id) {
+                          updateAssignee.mutate({ ticketId: ticket.id, assigneeId: currentUser.id })
+                        }
+                      }}
+                      disabled={updateAssignee.isPending || !currentUser?.id}
+                      className="h-7 text-xs font-medium text-primary hover:bg-primary/10"
+                    >
+                      Take
+                    </Button>
                   </>
                 )}
               </TableCell>
@@ -150,7 +153,7 @@ export function QueueTable({ tickets }: QueueTableProps) {
                   })}
                 </time>
               </TableCell>
-              <TableCell>
+              <TableCell onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
                 <TicketRowActions ticketId={ticket.id} />
               </TableCell>
             </TableRow>
