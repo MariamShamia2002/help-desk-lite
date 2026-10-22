@@ -1,19 +1,11 @@
 import { Search } from 'lucide-react'
 
 import { Input } from '@/components/ui/input'
-import { TICKET_STATUSES } from '@/features/tickets/lib/ticketHelpers'
+import { TICKET_PRIORITIES, TICKET_STATUSES } from '@/features/tickets/lib/ticketHelpers'
 import type { TicketPriority, TicketStatus } from '@/features/tickets/types/ticket.types'
 
 import { FilterSelect } from './FilterSelect'
 import type { QueueAssignee, StaffAgent } from '../types/queue.types'
-
-const PRIORITY_FILTERS: { label: string; value: TicketPriority | 'all' }[] = [
-  { label: 'All', value: 'all' },
-  { label: 'Low', value: 'low' },
-  { label: 'Normal', value: 'normal' },
-  { label: 'High', value: 'high' },
-  { label: 'Urgent', value: 'urgent' },
-]
 
 const ASSIGNEE_PRESETS: { label: string; value: QueueAssignee }[] = [
   { label: 'Me', value: 'me' },
@@ -72,7 +64,7 @@ export function QueueToolbar({
         label="Priority"
         value={priority}
         onChange={(value) => onPriorityChange(value as TicketPriority | 'all')}
-        options={PRIORITY_FILTERS}
+        options={TICKET_PRIORITIES.map((option) => ({ label: option.label, value: option.value }))}
         prefix="Priority"
       />
 

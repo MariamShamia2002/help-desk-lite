@@ -7,6 +7,7 @@ import { useAuthStore } from '@/features/auth/store/authStore'
 import type { QueueItem } from '@/features/queue/types/queue.types'
 
 import { updateTicketAssignee } from '../api/ticketsApi'
+import { ticketQueryKey } from './useTicket'
 
 export function useUpdateTicketAssignee() {
   const queryClient = useQueryClient()
@@ -19,7 +20,7 @@ export function useUpdateTicketAssignee() {
       expectedAssigneeId = null,
     }: {
       ticketId: number
-      assigneeId: string
+      assigneeId: string | null
       expectedAssigneeId?: string | null
     }) => {
       return updateTicketAssignee(ticketId, assigneeId, expectedAssigneeId)
@@ -38,7 +39,7 @@ export function useUpdateTicketAssignee() {
             ticket.id === ticketId
               ? {
                   ...ticket,
-                  assignee: { id: assigneeId, name: '' }, // Name will be updated on success
+                  assignee: assigneeId === null ? null : { id: assigneeId, name: '' },
                   updatedAt: new Date().toISOString(),
                 }
               : ticket,
@@ -65,7 +66,7 @@ export function useUpdateTicketAssignee() {
 
       return { previousData }
     },
-    onError: (error, _variables, context) => {
+    onError: (error, { ticketId }, context) => {
       if (context?.previousData) {
         context.previousData.forEach(([queryKey, data]) => {
           queryClient.setQueryData(queryKey, data)
@@ -80,13 +81,15 @@ export function useUpdateTicketAssignee() {
         } else {
           toast.error('Someone else just changed the assignee. Please try again.')
         }
-        // Refetch every queue query, including the sidebar count queries.
-        queryClient.invalidateQueries({ queryKey: ['queue'] })
+        void queryClient.invalidateQueries({ queryKey: ['queue'] })
+        void queryClient.invalidateQueries({ queryKey: ticketQueryKey(ticketId) })
       } else {
         toast.error(getErrorMessage(error, 'Failed to assign ticket. Please try again.'))
       }
     },
     onSuccess: (updatedTicket, { assigneeId }) => {
+      queryClient.setQueryData(ticketQueryKey(updatedTicket.id), updatedTicket)
+
       queryClient.setQueriesData<PaginatedResponse<QueueItem>>({ queryKey: ['queue'] }, (old) => {
         if (!old) return old
         return {
@@ -111,8 +114,9 @@ export function useUpdateTicketAssignee() {
         })
       }
 
-      // Show success message only if assigning to current user
-      if (currentUser && assigneeId === currentUser.id) {
+      if (assigneeId === null) {
+        toast.success('Ticket unassigned')
+      } else if (currentUser && assigneeId === currentUser.id) {
         toast.success('Ticket assigned to you')
       } else {
         toast.success('Ticket assigned')

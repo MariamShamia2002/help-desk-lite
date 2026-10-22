@@ -1,16 +1,11 @@
+import type { Role } from '@/api/types'
 export type TicketStatus = 'open' | 'progress' | 'waiting' | 'resolved' | 'closed'
 
 export type TicketPriority = 'low' | 'normal' | 'high' | 'urgent'
 
 /** Exact enum values from the API contract. */
 export type TicketCategory =
-  | 'Bug'
-  | 'Billing'
-  | 'Account'
-  | 'Integrations'
-  | 'Performance'
-  | 'Feature request'
-  | 'Other'
+  'Bug' | 'Billing' | 'Account' | 'Integrations' | 'Performance' | 'Feature request' | 'Other'
 
 export type MessageKind = 'public' | 'internal' | 'system'
 
@@ -18,7 +13,7 @@ export interface TicketPerson {
   id: string
   name: string
   email?: string
-  role?: 'customer' | 'agent' | 'admin'
+  role?: Role
 }
 
 export interface TicketMessage {
@@ -49,6 +44,14 @@ export interface StaffTicketPermissions {
 }
 
 export type TicketPermissions = CustomerTicketPermissions | StaffTicketPermissions
+
+export function isStaffTicketPermissions(permissions: TicketPermissions): permissions is StaffTicketPermissions {
+  return 'canAssign' in permissions
+}
+
+export function isCustomerTicketPermissions(permissions: TicketPermissions): permissions is CustomerTicketPermissions {
+  return 'canEdit' in permissions
+}
 
 /** Full ticket detail returned by GET/POST/PATCH ticket mutations. */
 export interface Ticket {
@@ -95,4 +98,16 @@ export interface CreateTicketPayload {
   title: string
   description: string
   category?: TicketCategory
+}
+
+/** Strict body for PATCH /tickets/:id. Send only the fields that changed. */
+export interface UpdateTicketPayload {
+  title?: string
+  description?: string
+}
+
+/** Strict body for POST /tickets/:id/messages. System messages are created by the server. */
+export interface CreateMessagePayload {
+  kind: 'public' | 'internal'
+  body: string
 }
