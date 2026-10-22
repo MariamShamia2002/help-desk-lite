@@ -43,7 +43,10 @@ export const router = createBrowserRouter([
           },
           {
             element: <ProtectedRoute capability="queue:view" />,
-            children: [{ path: '/queue', element: <QueuePage /> }],
+            children: [
+              { path: '/queue', element: <QueuePage />, index: true },
+              { path: '/queue/me', element: <QueuePage lockedAssignee="me" /> },
+            ],
           },
           { path: '*', element: <NotFoundPage /> },
         ],

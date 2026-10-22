@@ -40,3 +40,28 @@ export async function createTicket(payload: CreateTicketPayload): Promise<Ticket
     body,
   })
 }
+
+export async function updateTicketStatus(ticketId: number, status: Ticket['status']): Promise<Ticket> {
+  return apiClient<Ticket>(`/tickets/${ticketId}/status`, {
+    method: 'PATCH',
+    body: { status },
+  })
+}
+
+export async function updateTicketPriority(ticketId: number, priority: Ticket['priority']): Promise<Ticket> {
+  return apiClient<Ticket>(`/tickets/${ticketId}/priority`, {
+    method: 'PATCH',
+    body: { priority },
+  })
+}
+
+export async function updateTicketAssignee(
+  ticketId: number,
+  assigneeId: string | null,
+  expectedAssigneeId: string | null,
+): Promise<Ticket> {
+  return apiClient<Ticket>(`/tickets/${ticketId}/assignee`, {
+    method: 'PATCH',
+    body: { assigneeId, expectedAssigneeId },
+  })
+}
