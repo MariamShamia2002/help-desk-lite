@@ -6,14 +6,21 @@ import type { PaginatedResponse } from '@/api/types'
 import type { QueueItem } from '@/features/queue/types/queue.types'
 
 import { updateTicketPriority } from '../api/ticketsApi'
-import type { TicketPriority } from '../types/ticket.types'
+import type { TicketListItem, TicketPriority } from '../types/ticket.types'
+import { ticketQueryKey } from './useTicket'
+
+interface UpdateTicketPriorityVariables {
+  ticketId: number
+  priority: TicketPriority
+  expectedVersion?: number
+}
 
 export function useUpdateTicketPriority() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ ticketId, priority }: { ticketId: number; priority: TicketPriority }) =>
-      updateTicketPriority(ticketId, priority),
+    mutationFn: ({ ticketId, priority, expectedVersion }: UpdateTicketPriorityVariables) =>
+      updateTicketPriority(ticketId, priority, expectedVersion),
     onMutate: async ({ ticketId, priority }) => {
       await queryClient.cancelQueries({ queryKey: ['queue'] })
 
@@ -31,14 +38,13 @@ export function useUpdateTicketPriority() {
 
       return { previousData }
     },
-    onError: (error, _variables, context) => {
+    onError: (error, { ticketId }, context) => {
       if (context?.previousData) {
         context.previousData.forEach(([queryKey, data]) => {
           queryClient.setQueryData(queryKey, data)
         })
       }
 
-      // Handle version conflict
       if (isConflict(error)) {
         const currentVersion = getExtra<number>(error, 'currentVersion')
         if (currentVersion !== undefined) {
@@ -46,13 +52,28 @@ export function useUpdateTicketPriority() {
         } else {
           toast.error('This ticket was just modified by someone else. Please try again.')
         }
-        // Refetch to get the latest data
-        queryClient.invalidateQueries({ queryKey: ['queue'] })
-      } else {
-        toast.error(getErrorMessage(error, 'Failed to update priority. Please try again.'))
+        void queryClient.invalidateQueries({ queryKey: ['queue'] })
+        void queryClient.invalidateQueries({ queryKey: ticketQueryKey(ticketId) })
+        return
       }
+
+      toast.error(getErrorMessage(error, 'Failed to update priority. Please try again.'))
     },
     onSuccess: (updatedTicket) => {
+      queryClient.setQueryData(ticketQueryKey(updatedTicket.id), updatedTicket)
+
+      queryClient.setQueriesData<PaginatedResponse<TicketListItem>>({ queryKey: ['tickets'] }, (old) => {
+        if (!old?.data) return old
+        return {
+          ...old,
+          data: old.data.map((ticket) =>
+            ticket.id === updatedTicket.id
+              ? { ...ticket, priority: updatedTicket.priority, updatedAt: updatedTicket.updatedAt }
+              : ticket,
+          ),
+        }
+      })
+
       queryClient.setQueriesData<PaginatedResponse<QueueItem>>({ queryKey: ['queue'] }, (old) => {
         if (!old) return old
         return {
