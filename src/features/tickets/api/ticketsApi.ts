@@ -1,7 +1,15 @@
 import { apiClient, apiClientPaginated } from '@/api/client'
 import type { PaginatedResponse } from '@/api/types'
 
-import type { CreateTicketPayload, Ticket, TicketListItem, TicketsQueryParams } from '../types/ticket.types'
+import type {
+  CreateMessagePayload,
+  CreateTicketPayload,
+  Ticket,
+  TicketListItem,
+  TicketMessage,
+  TicketsQueryParams,
+  UpdateTicketPayload,
+} from '../types/ticket.types'
 
 export async function fetchTickets(params: TicketsQueryParams): Promise<PaginatedResponse<TicketListItem>> {
   const searchParams = new URLSearchParams()
@@ -41,18 +49,61 @@ export async function createTicket(payload: CreateTicketPayload): Promise<Ticket
   })
 }
 
-export async function updateTicketStatus(ticketId: number, status: Ticket['status']): Promise<Ticket> {
-  return apiClient<Ticket>(`/tickets/${ticketId}/status`, {
+export function fetchTicket(ticketId: number): Promise<Ticket> {
+  return apiClient<Ticket>(`/tickets/${ticketId}`)
+}
+
+export async function updateTicket(ticketId: number, payload: UpdateTicketPayload): Promise<Ticket> {
+  const body: UpdateTicketPayload = {}
+  if (payload.title !== undefined) body.title = payload.title.trim()
+  if (payload.description !== undefined) body.description = payload.description.trim()
+
+  return apiClient<Ticket>(`/tickets/${ticketId}`, {
     method: 'PATCH',
-    body: { status },
+    body,
   })
 }
 
-export async function updateTicketPriority(ticketId: number, priority: Ticket['priority']): Promise<Ticket> {
+export async function createTicketMessage(ticketId: number, payload: CreateMessagePayload): Promise<TicketMessage> {
+  return apiClient<TicketMessage>(`/tickets/${ticketId}/messages`, {
+    method: 'POST',
+    body: {
+      kind: payload.kind,
+      body: payload.body.trim(),
+    },
+  })
+}
+
+export async function updateTicketStatus(
+  ticketId: number,
+  status: Ticket['status'],
+  expectedVersion?: number,
+): Promise<Ticket> {
+  return apiClient<Ticket>(`/tickets/${ticketId}/status`, {
+    method: 'PATCH',
+    body: {
+      status,
+      ...(typeof expectedVersion === 'number' ? { expectedVersion } : {}),
+    },
+  })
+}
+
+export async function updateTicketPriority(
+  ticketId: number,
+  priority: Ticket['priority'],
+  expectedVersion?: number,
+): Promise<Ticket> {
   return apiClient<Ticket>(`/tickets/${ticketId}/priority`, {
     method: 'PATCH',
-    body: { priority },
+    body: {
+      priority,
+      ...(typeof expectedVersion === 'number' ? { expectedVersion } : {}),
+    },
   })
+}
+
+export function deleteTicket(ticketId: number): Promise<void> {
+  return apiClient<void>(`/tickets/${ticketId}`, { method: 'DELETE' })
 }
 
 export async function updateTicketAssignee(
