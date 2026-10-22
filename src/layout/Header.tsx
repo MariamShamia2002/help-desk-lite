@@ -6,9 +6,9 @@ import { AccountMenu } from './AccountMenu'
 
 export default function Header() {
   return (
-    <header className="border-b border-border bg-card">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-        <Link to="/" aria-label="Helpdesk Lite home">
+    <header className="border-b border-border bg-card ">
+      <div className="mx-auto flex h-16 px-4 items-center justify-between">
+        <Link to="/" aria-label="Helpdesk Lite home" >
           <Logo />
         </Link>
         <AccountMenu />
