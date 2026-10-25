@@ -8,7 +8,9 @@ import { Button } from '@/components/ui/button'
 import { AddStaffUserDialog } from '../components/AddStaffUserDialog'
 import { ChangeRoleDialog } from '../components/ChangeRoleDialog'
 import { DeactivateUserDialog } from '../components/DeactivateUserDialog'
+import { ForceSignOutDialog } from '../components/ForceSignOutDialog'
 import { UserCreatedDialog } from '../components/UserCreatedDialog'
+import { UserSessionsDialog } from '../components/UserSessionsDialog'
 import { UsersHeader } from '../components/UsersHeader'
 import { UsersEmptyState, UsersTable } from '../components/UsersTable'
 import { UsersToolbar } from '../components/UsersToolbar'
@@ -25,13 +27,12 @@ export default function UsersPage() {
   const [createdUser, setCreatedUser] = useState<CreateUserResponse | null>(null)
   const [roleUser, setRoleUser] = useState<AdminUser | null>(null)
   const [deactivateUser, setDeactivateUser] = useState<AdminUser | null>(null)
+  const [sessionsUser, setSessionsUser] = useState<AdminUser | null>(null)
+  const [forceSignOutUser, setForceSignOutUser] = useState<AdminUser | null>(null)
 
   const totalPages = data ? Math.ceil(data.meta.total / data.meta.limit) : 0
   const userCount = data?.meta.total ?? 0
   const hasFilters = Boolean(filters.debouncedSearch) || filters.role !== 'all' || filters.status !== 'all'
-
-  // Sessions / force sign-out dialogs land in the next Step 5 batch.
-  const stubAction = (_user: AdminUser) => undefined
 
   const handleToggleStatus = (user: AdminUser) => {
     if (user.active) {
@@ -79,8 +80,8 @@ export default function UsersPage() {
             <UsersTable
               users={data.data}
               onChangeRole={setRoleUser}
-              onViewSessions={stubAction}
-              onForceSignOut={stubAction}
+              onViewSessions={setSessionsUser}
+              onForceSignOut={setForceSignOutUser}
               onToggleStatus={handleToggleStatus}
             />
           )}
@@ -137,6 +138,22 @@ export default function UsersPage() {
         open={deactivateUser !== null}
         onOpenChange={(open) => {
           if (!open) setDeactivateUser(null)
+        }}
+      />
+
+      <UserSessionsDialog
+        user={sessionsUser}
+        open={sessionsUser !== null}
+        onOpenChange={(open) => {
+          if (!open) setSessionsUser(null)
+        }}
+      />
+
+      <ForceSignOutDialog
+        user={forceSignOutUser}
+        open={forceSignOutUser !== null}
+        onOpenChange={(open) => {
+          if (!open) setForceSignOutUser(null)
         }}
       />
     </section>
