@@ -1,5 +1,6 @@
 import { UserAvatar } from '@/components/shared/UserAvatar'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 import { formatUserLastActive, getActiveBadgeVariant, getActiveLabel, getRoleLabel } from '../lib/userHelpers'
@@ -17,14 +18,20 @@ interface UsersTableProps {
 
 interface UsersEmptyStateProps {
   hasFilters: boolean
+  onClearFilters: () => void
 }
 
-export function UsersEmptyState({ hasFilters }: UsersEmptyStateProps) {
+export function UsersEmptyState({ hasFilters, onClearFilters }: UsersEmptyStateProps) {
   return (
     <div className="rounded-lg border bg-card p-8 text-center">
       <p className="text-muted-foreground">
         {hasFilters ? 'No users match your filters.' : 'No users yet.'}
       </p>
+      {hasFilters && (
+        <Button type="button" variant="outline" className="mt-4" onClick={onClearFilters}>
+          Clear filters
+        </Button>
+      )}
     </div>
   )
 }
