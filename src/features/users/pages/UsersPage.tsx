@@ -3,6 +3,14 @@ import { useState } from 'react'
 import { getErrorMessage } from '@/api/errors'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 
 import { UsersHeader } from '../components/UsersHeader'
 import { UsersEmptyState, UsersTable } from '../components/UsersTable'
@@ -14,8 +22,7 @@ import type { AdminUser } from '../types/user.types'
 export default function UsersPage() {
   const filters = useUserFilters()
   const { data, isLoading, error } = useUsers(filters.params)
-  // Dialog open state is wired in Step 4 (AddStaffUserDialog).
-  const [, setAddStaffOpen] = useState(false)
+  const [addStaffOpen, setAddStaffOpen] = useState(false)
 
   const totalPages = data ? Math.ceil(data.meta.total / data.meta.limit) : 0
   const userCount = data?.meta.total ?? 0
@@ -82,6 +89,21 @@ export default function UsersPage() {
           )}
         </>
       )}
+
+      {/*  replaces this stub with AddStaffUserDialog */}
+      <Dialog open={addStaffOpen} onOpenChange={setAddStaffOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add staff user</DialogTitle>
+            <DialogDescription>The create form will appear here in the next step.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setAddStaffOpen(false)}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   )
 }
