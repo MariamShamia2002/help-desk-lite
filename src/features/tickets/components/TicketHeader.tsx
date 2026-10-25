@@ -99,13 +99,15 @@ export function TicketHeader({ ticket, onEdit }: TicketHeaderProps) {
           ← {back.label}
         </Link>
         <div className="flex shrink-0 flex-wrap items-center gap-2">
-          {customerPermissions?.canEdit && (
-            <Button type="button" onClick={onEdit}>
-              Edit
-            </Button>
-          )}
-          {!customerPermissions?.canEdit && editDisabledReason && (
-            <p className="max-w-xs text-sm text-muted-foreground">{editDisabledReason}</p>
+          {(customerPermissions?.canEdit || editDisabledReason) && (
+            <span
+              className="inline-flex"
+              title={!customerPermissions?.canEdit ? editDisabledReason : undefined}
+            >
+              <Button type="button" disabled={!customerPermissions?.canEdit} onClick={onEdit}>
+                Edit
+              </Button>
+            </span>
           )}
           {showReopen && (
             <Button
