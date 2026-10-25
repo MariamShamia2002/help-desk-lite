@@ -2,6 +2,8 @@ import type { Role } from '@/api/types'
 
 export type UserRoleFilter = Role | 'all'
 export type UserStatusFilter = 'all' | 'active' | 'deactivated'
+export type StaffRole = Extract<Role, 'agent' | 'admin'>
+
 export interface AdminUser {
   id: string
   name: string
@@ -24,7 +26,7 @@ export interface UsersQueryParams {
 export interface CreateUserPayload {
   name: string
   email: string
-  role: Role
+  role: StaffRole
 }
 
 export interface CreateUserResponse {
