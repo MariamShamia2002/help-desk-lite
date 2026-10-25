@@ -5,6 +5,7 @@ import { useAuthStore } from '@/features/auth/store/authStore'
 import type { Capability } from '@/features/auth/types/auth.types'
 import { useQueueCounts } from '@/features/queue/hooks/useQueueCounts'
 import { useTicketCounts } from '@/features/tickets/hooks/useTicketCounts'
+import { useUserCounts } from '@/features/users/hooks/useUserCounts'
 import { cn } from '@/lib/utils'
 
 interface NavItem {
@@ -12,7 +13,7 @@ interface NavItem {
   to: string
   capability: Capability
   showCount?: boolean
-  countType?: 'tickets' | 'queue' | 'myAssigned'
+  countType?: 'tickets' | 'queue' | 'myAssigned' | 'users'
   /** Exact path match — needed so /tickets is not active on /tickets/new. */
   end?: boolean
 }
@@ -29,6 +30,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'New ticket', to: '/tickets/new', capability: 'tickets:create' },
   { label: 'Queue', to: '/queue', capability: 'queue:view', showCount: true, countType: 'queue', end: true },
   { label: 'My assigned', to: '/queue/me', capability: 'queue:view', showCount: true, countType: 'myAssigned' },
+  { label: 'Users', to: '/users', capability: 'users:manage', showCount: true, countType: 'users', end: true },
 ]
 
 export function AppSidebar() {
@@ -36,6 +38,7 @@ export function AppSidebar() {
 
   const { ticketCount } = useTicketCounts()
   const { queueCount, myAssignedCount } = useQueueCounts()
+  const { userCount } = useUserCounts()
 
   const getCount = (item: NavItem) => {
     if (!item.showCount) return undefined
@@ -47,6 +50,8 @@ export function AppSidebar() {
         return queueCount
       case 'myAssigned':
         return myAssignedCount
+      case 'users':
+        return userCount
       default:
         return undefined
     }
