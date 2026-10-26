@@ -13,6 +13,7 @@ import QueuePage from '@/features/queue/pages/QueuePage'
 import CreateTicketPage from '@/features/tickets/pages/CreateTicketPage'
 import TicketDetailPage from '@/features/tickets/pages/TicketDetailPage'
 import TicketsPage from '@/features/tickets/pages/TicketsPage'
+import UsersPage from '@/features/users/pages/UsersPage'
 import AppLayout from '@/layout/AppLayout'
 
 export const router = createBrowserRouter([
@@ -49,6 +50,10 @@ export const router = createBrowserRouter([
               { path: '/queue', element: <QueuePage />, index: true },
               { path: '/queue/me', element: <QueuePage lockedAssignee="me" /> },
             ],
+          },
+          {
+            element: <ProtectedRoute capability="users:manage" />,
+            children: [{ path: '/users', element: <UsersPage /> }],
           },
           { path: '*', element: <NotFoundPage /> },
         ],
