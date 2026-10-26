@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 
 import type { Role } from '@/api/types'
@@ -32,15 +32,8 @@ interface ChangeRoleDialogProps {
 
 export function ChangeRoleDialog({ user, open, onOpenChange }: ChangeRoleDialogProps) {
   const updateRole = useUpdateUserRole()
-  const [role, setRole] = useState<Role>('agent')
+  const [role, setRole] = useState<Role>(user?.role ?? 'agent')
   const [inlineError, setInlineError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (open && user) {
-      setRole(user.role)
-      setInlineError(null)
-    }
-  }, [open, user])
 
   if (!user) return null
 
