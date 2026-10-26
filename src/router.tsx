@@ -11,7 +11,9 @@ import ResetPasswordPage from '@/features/auth/pages/ResetPasswordPage'
 import SignupPage from '@/features/auth/pages/SignupPage'
 import QueuePage from '@/features/queue/pages/QueuePage'
 import CreateTicketPage from '@/features/tickets/pages/CreateTicketPage'
+import TicketDetailPage from '@/features/tickets/pages/TicketDetailPage'
 import TicketsPage from '@/features/tickets/pages/TicketsPage'
+import UsersPage from '@/features/users/pages/UsersPage'
 import AppLayout from '@/layout/AppLayout'
 
 export const router = createBrowserRouter([
@@ -41,12 +43,17 @@ export const router = createBrowserRouter([
             element: <ProtectedRoute capability="tickets:create" />,
             children: [{ path: '/tickets/new', element: <CreateTicketPage /> }],
           },
+          { path: '/tickets/:ticketId', element: <TicketDetailPage /> },
           {
             element: <ProtectedRoute capability="queue:view" />,
             children: [
               { path: '/queue', element: <QueuePage />, index: true },
               { path: '/queue/me', element: <QueuePage lockedAssignee="me" /> },
             ],
+          },
+          {
+            element: <ProtectedRoute capability="users:manage" />,
+            children: [{ path: '/users', element: <UsersPage /> }],
           },
           { path: '*', element: <NotFoundPage /> },
         ],
