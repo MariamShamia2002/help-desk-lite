@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -22,10 +22,6 @@ interface UserCreatedDialogProps {
 
 export function UserCreatedDialog({ open, response, onOpenChange }: UserCreatedDialogProps) {
   const [copied, setCopied] = useState(false)
-
-  useEffect(() => {
-    if (open) setCopied(false)
-  }, [open, response])
 
   if (!response) return null
 

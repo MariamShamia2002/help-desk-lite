@@ -118,6 +118,7 @@ export default function UsersPage() {
       />
 
       <UserCreatedDialog
+        key={createdUser?.user.id}
         open={createdUser !== null}
         response={createdUser}
         onOpenChange={(open) => {
