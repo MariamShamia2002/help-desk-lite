@@ -127,6 +127,7 @@ export default function UsersPage() {
       />
 
       <ChangeRoleDialog
+        key={roleUser?.id}
         user={roleUser}
         open={roleUser !== null}
         onOpenChange={(open) => {
