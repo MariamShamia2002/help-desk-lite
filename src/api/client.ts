@@ -1,3 +1,5 @@
+import { consumeDebugHeaders, isDebugOffline } from '@/features/debug/lib/debugArm'
+
 import { ApiError } from './errors'
 import { clearSession, emitSessionEvent, getAccessToken, getCurrentRole, setCurrentRole, setSession } from './session'
 import type { ApiErrorBody, ApiErrorCode, ApiResponse, AuthSession, PaginatedResponse, Role } from './types'
@@ -23,6 +25,12 @@ type ExecuteOptions = Omit<RequestOptions, 'skipAuth'>
 async function execute(endpoint: string, options: ExecuteOptions, token: string | null): Promise<RawResponse> {
   const { body, headers, ...fetchOptions } = options
 
+  if (import.meta.env.DEV && isDebugOffline()) {
+    throw networkError(new Error('Debug offline simulation'))
+  }
+
+  const debugHeaders = import.meta.env.DEV ? consumeDebugHeaders(endpoint) : null
+
   let response: Response
   try {
     response = await fetch(`${API_URL}${endpoint}`, {
@@ -33,6 +41,7 @@ async function execute(endpoint: string, options: ExecuteOptions, token: string 
         ...(token && { Authorization: `Bearer ${token}` }),
         // CSRF guard required by the cookie-authenticated refresh / logout endpoints.
         'X-Requested-With': 'helpdesk',
+        ...debugHeaders,
         ...headers,
       },
       body: body !== undefined ? JSON.stringify(body) : undefined,

@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 
 import { onSessionEvent } from '@/api/session'
+import { DEBUG_SIGN_OUT_CHANNEL } from '@/features/debug/lib/debugArm'
 
 import { useAuthStore } from '../store/authStore'
 
@@ -14,6 +15,7 @@ export function AuthBootstrap({ children }: AuthBootstrapProps) {
   const queryClient = useQueryClient()
   const initialize = useAuthStore((state) => state.initialize)
   const handleSessionEvent = useAuthStore((state) => state.handleSessionEvent)
+  const endLocalSession = useAuthStore((state) => state.endLocalSession)
 
   useEffect(() => {
     return onSessionEvent((event) => {
@@ -27,6 +29,16 @@ export function AuthBootstrap({ children }: AuthBootstrapProps) {
   useEffect(() => {
     void initialize()
   }, [initialize])
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) return
+    const channel = new BroadcastChannel(DEBUG_SIGN_OUT_CHANNEL)
+    channel.onmessage = () => {
+      endLocalSession('revoked')
+      queryClient.clear()
+    }
+    return () => channel.close()
+  }, [endLocalSession, queryClient])
 
   return children
 }
