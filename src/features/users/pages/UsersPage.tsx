@@ -136,6 +136,7 @@ export default function UsersPage() {
       />
 
       <DeactivateUserDialog
+        key={deactivateUser?.id}
         user={deactivateUser}
         open={deactivateUser !== null}
         onOpenChange={(open) => {

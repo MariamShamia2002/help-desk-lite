@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { getErrorMessage, hasCode } from '@/api/errors'
@@ -26,10 +26,6 @@ interface DeactivateUserDialogProps {
 export function DeactivateUserDialog({ user, open, onOpenChange }: DeactivateUserDialogProps) {
   const updateStatus = useUpdateUserStatus()
   const [inlineError, setInlineError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (open) setInlineError(null)
-  }, [open])
 
   if (!user) return null
 
