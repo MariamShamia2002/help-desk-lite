@@ -19,13 +19,19 @@ export default function TicketDetailPage() {
   const { ticketId: ticketIdParam } = useParams()
   const ticketId = Number(ticketIdParam)
   const isValidId = Number.isInteger(ticketId) && ticketId > 0
-  const { data: ticket, isLoading, isError, error, refetch } = useTicket(isValidId ? ticketId : 0)
+  const { data: ticket=null, isLoading, isError, error, refetch } = useTicket(isValidId ? ticketId : 0)
   const capabilities = useAuthStore((state) => state.capabilities)
   const [isEditing, setIsEditing] = useState(false)
   const back = hasCapability(capabilities, 'queue:view')
     ? { to: '/queue', label: 'Queue' }
     : { to: '/tickets', label: 'My tickets' }
 
+
+
+  if (isLoading) {
+    return <div className="rounded-lg border bg-card p-8 text-center text-muted-foreground">Loading ticket...</div>
+  }
+  
   if (!isValidId || (isError && isNotFound(error))) {
     return (
       <section className="flex flex-col items-start gap-4">
@@ -37,11 +43,6 @@ export default function TicketDetailPage() {
       </section>
     )
   }
-
-  if (isLoading) {
-    return <div className="rounded-lg border bg-card p-8 text-center text-muted-foreground">Loading ticket...</div>
-  }
-
   if (isError || !ticket) {
     return (
       <div className="flex flex-col items-start gap-4">
