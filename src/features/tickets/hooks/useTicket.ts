@@ -10,5 +10,7 @@ export function useTicket(ticketId: number) {
     queryKey: ticketQueryKey(ticketId),
     queryFn: () => fetchTicket(ticketId),
     enabled: Number.isInteger(ticketId) && ticketId > 0,
+    // Soft-poll so replies and triage changes from other agents show up while the page is open.
+    refetchInterval: 15_000,
   })
 }

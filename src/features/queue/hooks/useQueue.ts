@@ -10,9 +10,10 @@ export function useQueue(
   options?: Omit<UseQueryOptions<PaginatedResponse<QueueItem>>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery<PaginatedResponse<QueueItem>>({
+    // Keep the staff queue fresh without a hard refresh when colleagues claim/update tickets.
+    refetchInterval: 15_000,
     ...options,
     queryKey: ['queue', params],
     queryFn: () => fetchQueue(params),
-   
   })
 }
