@@ -1,4 +1,5 @@
 import { getErrorMessage } from '@/api/errors'
+import { SessionsSkeleton } from '@/components/shared/SessionsSkeleton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -54,7 +55,7 @@ interface SessionsContentProps {
 
 function SessionsContent({ query }: SessionsContentProps) {
   if (query.isLoading) {
-    return <p className="py-6 text-center text-sm text-muted-foreground">Loading sessions…</p>
+    return <SessionsSkeleton compact rows={3} />
   }
 
   if (query.isError) {
