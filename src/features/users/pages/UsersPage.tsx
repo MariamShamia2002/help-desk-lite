@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { getErrorMessage } from '@/api/errors'
+import { TableSkeleton } from '@/components/shared/TableSkeleton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 
@@ -68,9 +69,7 @@ export default function UsersPage() {
         </Alert>
       )}
 
-      {isLoading && (
-        <div className="rounded-lg border bg-card p-8 text-center text-muted-foreground">Loading users...</div>
-      )}
+      {isLoading && <TableSkeleton columns={6} label="Loading users…" />}
 
       {!isLoading && data && (
         <>

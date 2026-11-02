@@ -1,6 +1,5 @@
-import { LoaderCircle } from 'lucide-react'
-
 import { getErrorMessage } from '@/api/errors'
+import { SessionsSkeleton } from '@/components/shared/SessionsSkeleton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 
@@ -26,15 +25,7 @@ interface SessionsContentProps {
 
 function SessionsContent({ query }: SessionsContentProps) {
   if (query.isPending) {
-    return (
-      <div
-        role="status"
-        className="flex items-center gap-2 rounded-lg border border-border px-5 py-6 text-sm text-muted-foreground"
-      >
-        <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
-        Loading sessions…
-      </div>
-    )
+    return <SessionsSkeleton />
   }
 
   if (query.isError) {
