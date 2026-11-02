@@ -1,3 +1,4 @@
+import { TableSkeleton } from '@/components/shared/TableSkeleton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 
@@ -33,9 +34,7 @@ export default function TicketsPage() {
         </Alert>
       )}
 
-      {isLoading && (
-        <div className="rounded-lg border bg-card p-8 text-center text-muted-foreground">Loading tickets...</div>
-      )}
+      {isLoading && <TableSkeleton columns={6} label="Loading tickets…" />}
 
       {!isLoading && data && (
         <>
